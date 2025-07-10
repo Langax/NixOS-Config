@@ -14,7 +14,9 @@
   home.packages = with pkgs; [
     kitty
     amberol
-
+    swww
+    playerctl
+    gedit
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
