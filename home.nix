@@ -1,35 +1,50 @@
+# /etc/nixos/home.nix
 { config, pkgs, ... }:
 
+let
+  #==========================================#
+  ## Theme Toggle
+  ## Current available Themes: "lofi", "cyber"
+  #==========================================#
+
+  theme = "lofi";
+in
 {
-  # Home Manager needs a bit of information about you and the paths it should
-  # manage.
+  #==========================================#
+  ## Basic identity configuration
+  #==========================================#
   home.username = "nyhil";
   home.homeDirectory = "/home/nyhil";
-  home.stateVersion = "25.05"; # Please read the comment before changing.
+  home.stateVersion = "24.05";
+  home.file = { };
+  programs.home-manager.enable = true;
 
-
-
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
+  #==========================================#
+  ## User specific packages
+  #==========================================#
   home.packages = with pkgs; [
     kitty
     amberol
     swww
     playerctl
     gedit
+    sl
   ];
 
-  # Home Manager is pretty good at managing dotfiles. The primary way to manage
-  # plain files is through 'home.file'.
-  home.file = {
-
-  };
-
-  home.sessionVariables = {
-    # EDITOR = "emacs";
-  };
-
-  # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
+  programs.zsh.enable = true;
   programs.waybar.enable = true;
+
+  users.defaultUserShell = pkgs.zsh;
+
+
+  #==========================================#
+  ## Themed config files
+  #==========================================#
+  xdg.configFile."hypr/hyprland.conf".source          = ./dotfiles/${theme}/hypr/hyprland.conf;
+  xdg.configFile."fastfetch/config.jsonc".source      = ./dotfiles/${theme}/fastfetch/config.jsonc;
+  xdg.configFile."rofi/config.rasi".source            = ./dotfiles/${theme}/rofi/config.rasi;
+  xdg.configFile."waybar/config.jsonc".source         = ./dotfiles/${theme}/waybar/config.jsonc;
+  xdg.configFile."waybar/style.css".source            = ./dotfiles/${theme}/waybar/style.css;
+  xdg.configFile."waybar/latte.css".source            = ./dotfiles/${theme}/waybar/latte.css;
+
 }

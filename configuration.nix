@@ -1,67 +1,60 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, inputs, ... }:
+# /etc/nixos/configuration.nix
+{ config, pkgs, ... }:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-    ];
+  #==========================================#
+  ## Imports
+  #==========================================#
+  imports = [
+    ./hardware-configuration.nix
 
-  # Bootloader.
+    # Home Manager NixOS module (provided by the home-manager channel)
+    <home-manager/nixos>
+  ];
+
+  #==========================================#
+  ## Bootloader / Kernel
+  #==========================================#
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  # Use latest kernel.
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
-  networking.hostName = "Malignant"; # Define your hostname.
-
-  # Allow flakes experimental feature
+  #==========================================#
+  ## Nix / Unfree
+  #==========================================#
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nixpkgs.config.allowUnfree = true;
 
-  # Enable networking
+  #==========================================#
+  ## Hostname & Networking
+  #==========================================#
+  networking.hostName = "Malignant";
   networking.networkmanager.enable = true;
 
-  # Set your time zone.
+  #==========================================#
+  ## Localization
+  #==========================================#
   time.timeZone = "Europe/London";
-
-  # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
-
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "en_GB.UTF-8";
-    LC_IDENTIFICATION = "en_GB.UTF-8";
-    LC_MEASUREMENT = "en_GB.UTF-8";
-    LC_MONETARY = "en_GB.UTF-8";
-    LC_NAME = "en_GB.UTF-8";
-    LC_NUMERIC = "en_GB.UTF-8";
-    LC_PAPER = "en_GB.UTF-8";
-    LC_TELEPHONE = "en_GB.UTF-8";
-    LC_TIME = "en_GB.UTF-8";
-  };
-
-  # Enable the X11 windowing system.
-  # You can disable this if you're only using the Wayland session.
-  services.xserver.enable = true;
-
-  # Enable the KDE Plasma Desktop Environment.
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
-
-  # Configure keymap in X11
-  services.xserver.xkb = {
-    layout = "gb";
-    variant = "";
-  };
-
-  # Configure console keymap
   console.keyMap = "uk";
+  services.xserver.xkb.layout = "gb";
 
-  # Enable sound with pipewire.
-  services.pulseaudio.enable = false;
+  #==========================================#
+  ## Desktop Environments / Compositors
+  #==========================================#
+  # Plasma 6 (X11 & Wayland sessions).
+  services.xserver.enable = true;
+  services.desktopManager.plasma6.enable = true;
+  services.displayManager.sddm.enable = true;
+
+  # Hyprland (Wayland compositor)
+  programs.hyprland.enable = true;
+
+  #==========================================#
+  ## Sound (PipeWire replacing PulseAudio)
+  #==========================================#
+  hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -70,61 +63,46 @@
     pulse.enable = true;
   };
 
-  # Define a user account. Don't forget to set a password with ‘passwd’.
+  #==========================================#
+  ## Users
+  #==========================================#
   users.users.nyhil = {
     isNormalUser = true;
-    description = "Nyhil";
+    description = "nyhil";
     extraGroups = [ "networkmanager" "wheel" ];
-    packages = with pkgs; [
-
-    ];
   };
 
   users.users.guest = {
     isNormalUser = true;
     description = "Guest";
-    packages = with pkgs; [
-
-    ];
   };
 
-  security.sudo.extraRules = [{
-    users = ["nyhil"];
-    commands = [{ command = "ALL";
-      options = ["NOPASSWD"];
-      }];
-  }];
 
+  #==========================================#
+  ## Home Manager Integration (classic)
+  #==========================================#
   home-manager = {
-    extraSpecialArgs = { inherit inputs; };
-    users = {
-      "nyhil" = import ./home.nix;
-    };
+    useGlobalPkgs = true;
+    useUserPackages = true;
+    users.nyhil = import ./home.nix;
+    # stateVersion stays in home.nix
   };
 
-
-  # Install firefox.
-  programs.firefox.enable = true;
-
-  # Install Hyprland.
-  programs.hyprland.enable = true;
-  programs.hyprland.package = inputs.hyprland.packages."${pkgs.system}".hyprland;
-
-  # Allow unfree packages
-  nixpkgs.config.allowUnfree = true;
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
+  #==========================================#
+  ## System Packages
+  #==========================================#
   environment.systemPackages = with pkgs; [
     git
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     wget
-    sl
     psmisc
-    zsh
+    btop
+    eza
+    tree
   ];
 
 
-  system.stateVersion = "25.05"; # Did you read the comment?
-
+  #==========================================#
+  ## State Version
+  #==========================================#
+  system.stateVersion = "25.05";
 }
