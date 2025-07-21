@@ -3,37 +3,35 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    hyprland.url = "github:hyprwm/Hyprland";
     home-manager = {
       url = "github:nix-community/home-manager";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    flake-utils.url = "github:numtide/flake-utils";
   };
 
 
-  outputs = {
-    flake-utils.lib.eachDefaultSystem (system:
-      let
-        pkgs = import nixpkgs { inherit system; };
-      in
-      {
-        nixConfigurations = {
-          malignant = pkgs.lib.nixosSystem {
-            inherit system;
-            modules = [
-              ./configuration.nix
-              home-manager.nixosModules.home-manager
-            ];
-            specialArgs = { inherit self; };
-          };
-        };
 
-        homeConfigurations = {
-          nyhil = home-manager.lib.homeManagerConfiguration {
-            inherit pkgs;
-            modules = [ ./home.nix ];
-          };
-        };
-      }
+
+
+
+  outputs = { self, nixpkgs, home-manager, ... }@inputs: {
+
+    # Top-level NixOS configuration
+    nixosConfigurations = {
+      malignant = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          ./configuration.nix
+          home-manager.nixosModules.home-manager
+        ];
+        specialArgs = { inherit inputs; };
+      };
     };
+
+    # Home-Manager configuration for your 
+    # (Optional) default package & devShell if you want them
+    # defaultPackage.x86_64-linux = nixpkgs.hello;
+    # devShell.x86_64-linux     = nixpkgs.mkShell { buildInputs = [ nixpkgs.git ]; };
+  };
 }

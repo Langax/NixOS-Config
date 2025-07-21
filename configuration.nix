@@ -1,5 +1,5 @@
 # /etc/nixos/configuration.nix
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   #==========================================#
@@ -9,7 +9,7 @@
     ./hardware-configuration.nix
 
     # Home Manager NixOS module (provided by the home-manager channel)
-    <home-manager/nixos>
+    inputs.home-manager.nixosModules.default
   ];
 
   #==========================================#
@@ -23,7 +23,7 @@
   #==========================================#
   ## Nix / Unfree
   #==========================================#
-  nix.settings.experimental-features = [ "nix-command", "flakes" ];
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
   nixpkgs.config.allowUnfree = true;
 
   #==========================================#
@@ -75,17 +75,6 @@
   users.users.guest = {
     isNormalUser = true;
     description = "Guest";
-  };
-
-
-  #==========================================#
-  ## Home Manager Integration (classic)
-  #==========================================#
-  home-manager = {
-    useGlobalPkgs = true;
-    useUserPackages = true;
-    users.nyhil = import ./home.nix;
-    # stateVersion stays in home.nix
   };
 
   #==========================================#
