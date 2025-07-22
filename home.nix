@@ -8,6 +8,7 @@ let
   #==========================================#
 
   theme = "cyber";
+  themedir = ./dotfiles/${theme};
 in
 {
   #==========================================#
@@ -16,7 +17,13 @@ in
   home.username = "nyhil";
   home.homeDirectory = "/home/nyhil";
   home.stateVersion = "24.05";
-  home.file = { };
+  
+  xdg.configFile."${theme}" = {
+    source = themedir;
+    recursive = true;
+    force = true;
+  };
+
   programs.home-manager.enable = true;
 
   #==========================================#
