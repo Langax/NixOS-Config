@@ -51,6 +51,9 @@
   # Hyprland (Wayland compositor)
   programs.hyprland.enable = true;
 
+  programs.zsh.enable = true;
+
+  programs.firefox.enable = true;
   #==========================================#
   ## Sound (PipeWire replacing PulseAudio)
   #==========================================#
@@ -70,6 +73,7 @@
     isNormalUser = true;
     description = "nyhil";
     extraGroups = [ "networkmanager" "wheel" ];
+    shell = pkgs.zsh;
   };
 
   users.users.guest = {
@@ -87,9 +91,15 @@
     btop
     eza
     tree
+    wlogout
+    hyprlock
   ];
 
-
+  fonts.packages = [
+    pkgs.nerd-fonts._0xproto
+    pkgs.nerd-fonts.droid-sans-mono
+    pkgs.nerd-fonts.symbols-only
+  ];
   #==========================================#
   ## State Version
   #==========================================#

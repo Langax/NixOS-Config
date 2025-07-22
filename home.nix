@@ -7,7 +7,7 @@ let
   ## Current available Themes: "lofi", "cyber"
   #==========================================#
 
-  theme = "lofi";
+  theme = "cyber";
 in
 {
   #==========================================#
@@ -31,10 +31,7 @@ in
     sl
   ];
 
-  programs.zsh.enable = true;
   programs.waybar.enable = true;
-
-  users.defaultUserShell = pkgs.zsh;
 
 
   #==========================================#
