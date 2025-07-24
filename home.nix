@@ -8,7 +8,8 @@ let
   #==========================================#
 
   theme = "cyber";
-  themedir = ./dotfiles/${theme};
+  themedir = "${config.home.homeDirectory}/dotfiles/${theme}";
+  entries = builtins.attrNames (builtins.readDir themedir);
 in
 {
   #==========================================#
@@ -18,11 +19,14 @@ in
   home.homeDirectory = "/home/nyhil";
   home.stateVersion = "24.05";
   
-  xdg.configFile."${theme}" = {
-    source = themedir;
-    recursive = true;
-    force = true;
-  };
+  home.file. = builtins.listToAttrs (map (n: {
+    name = ".config/${n}";
+    value = {
+      source = lib.file.mkOutOfStoreSymLink "${themedir}/${n}";
+      recursive = true;
+      force = true;
+    };
+  }) entries);
 
   programs.home-manager.enable = true;
 
