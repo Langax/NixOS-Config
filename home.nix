@@ -1,5 +1,5 @@
 # /etc/nixos/home.nix
-{ config, pkgs, ... }:
+{ config, pkgs, lib, theme ? cyber, ... }:
 
 let
   #==========================================#
@@ -7,9 +7,14 @@ let
   ## Current available Themes: "lofi", "cyber"
   #==========================================#
 
-  theme = "cyber";
-  themedir = "${config.home.homeDirectory}/dotfiles/${theme}";
-  entries = builtins.attrNames (builtins.readDir themedir);
+  dotfilesRoot = /etc/nixos/dotfiles;
+  themeDir = dotfilesRoot + "/${theme}";
+
+  mkCfgDir = name: {
+    source = themeDir + "/${name}";
+    recursive = true;
+    force = true;
+  };
 in
 {
   #==========================================#
@@ -18,17 +23,10 @@ in
   home.username = "nyhil";
   home.homeDirectory = "/home/nyhil";
   home.stateVersion = "24.05";
-  
-  home.file. = builtins.listToAttrs (map (n: {
-    name = ".config/${n}";
-    value = {
-      source = lib.file.mkOutOfStoreSymLink "${themedir}/${n}";
-      recursive = true;
-      force = true;
-    };
-  }) entries);
+  home.file = {}
 
   programs.home-manager.enable = true;
+  xdg.enable = true;
 
   #==========================================#
   ## User specific packages
@@ -48,11 +46,12 @@ in
   #==========================================#
   ## Themed config files
   #==========================================#
-  xdg.configFile."hypr/hyprland.conf".source          = ./dotfiles/${theme}/hypr/hyprland.conf;
-  xdg.configFile."fastfetch/config.jsonc".source      = ./dotfiles/${theme}/fastfetch/config.jsonc;
-  xdg.configFile."rofi/config.rasi".source            = ./dotfiles/${theme}/rofi/config.rasi;
-  xdg.configFile."waybar/config.jsonc".source         = ./dotfiles/${theme}/waybar/config.jsonc;
-  xdg.configFile."waybar/style.css".source            = ./dotfiles/${theme}/waybar/style.css;
-  xdg.configFile."waybar/latte.css".source            = ./dotfiles/${theme}/waybar/latte.css;
+  xdg.configFile = {
+    "hypr"      = mkCfgDir "hypr";
+    "waybar"    = mkCfgDir "waybar";
+    "rofi"      = mkCfgDir "rofi";
+    "fastfetch" = mkCfgDir "fastfetch";
+
+  };
 
 }
